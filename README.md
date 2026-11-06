@@ -62,7 +62,7 @@ honest. But the table is the document a stranger walks, and 140 identical rows
 in an append-only log read as "anchoring was attempted and something went
 wrong", not as "the credential died and nobody noticed for 15 hours".
 
-## Finding 2 — `archive`: 11 of 14 confirmed rows name a capture that cannot hold the checkpoint they claim
+## Finding 2 — `archive`: 12 of 14 confirmed rows name a capture that cannot hold the checkpoint they claim
 
 `archive` rows are supposed to record "one capture of `GET /api/checkpoint`".
 Wayback stores one document per capture timestamp. Therefore **all rows citing
@@ -78,8 +78,8 @@ Measured against the captures themselves (`id_` raw form, gunzipped — the
 | 2026-11-05 02:06:59  | size 35575         | 3              | 1               |
 | 2026-11-06 00:43:52  | size 36103         | 5              | **0**           |
 
-15 of 16 citing rows across the three fetches name a payload the capture does
-not hold; the four that match are the earliest row of each group, i.e. the one
+12 of the 14 citing rows across the three fetches name a payload the capture
+does not hold. The two that match are the earliest row of each group — the one
 written close enough to the capture to be the document that produced it.
 
 The 2026-11-06 capture is the clean case, because all five citing rows are
