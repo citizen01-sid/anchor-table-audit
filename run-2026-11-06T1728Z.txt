@@ -1,0 +1,41 @@
+audit at 2026-11-06T17:28:37Z
+walked 800 recent rows, id 27180..27979
+
+== base leg: tx input must decode to the row's payload ==
+  [PASS] control 0: oldest confirmed row reproduces — row 11 block 51762015
+  [PASS] base row 27400 input == payload — block 53698912
+  [PASS] base row 27392 input == payload — block 53695913
+  [PASS] base row 27383 input == payload — block 53692918
+
+  stalled: 182 failed base rows, first at 2026-11-05 20:05:54Z
+  error: Status: 402
+  [PASS] base leg is failing repeatedly (not a one-off) — 140 consecutive failed rows at the newest end
+  last confirmed base: row 27400 at 2026-11-06 01:55:52Z (-350 min before the first failure)
+
+== ots leg: the proof must commit to the payload by sha256 ==
+  [PASS] ots row 27891: served .txt == row payload
+  [PASS] ots row 27891: valid OTS magic
+  [PASS] ots row 27891: proof commits to sha256(payload) — 05f6d02f4e27c7c1...
+  [PASS] control 1: row 27891: mutated payload is NOT in the proof
+  [PASS] ots row 27887: served .txt == row payload
+  [PASS] ots row 27887: valid OTS magic
+  [PASS] ots row 27887: proof commits to sha256(payload) — 2421f3e89e3d67f1...
+  [PASS] control 1: row 27887: mutated payload is NOT in the proof
+  pending: 107 rows, oldest 7.2 h (observed max upgrade latency ~9 h)
+
+== archive leg: one capture holds one checkpoint ==
+  5 confirmed archive rows over 1 distinct captures
+    capture 20261106004352: 5 rows claim sizes ['36102', '36131', '36154', '36179', '36211']
+  [PASS] control 2: at least one capture is claimed by two different payloads — 1 of 1 captures
+
+    capture 2026-11-06 00:43:52Z serves size 36103
+      row 27335 size  36102  NO
+      row 27384 size  36131  NO, payload written +52 min AFTER the capture
+      row 27421 size  36154  NO, payload written +102 min AFTER the capture
+      row 27462 size  36179  NO, payload written +172 min AFTER the capture
+      row 27495 size  36211  NO, payload written +227 min AFTER the capture
+  [FAIL] capture 11-06 00:43: every citing row matches — 0/5
+
+  dedup loop: 16 rows report 'already captured', median interval 60 min
+
+1 check(s) FAILED
