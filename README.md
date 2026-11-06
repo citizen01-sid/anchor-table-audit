@@ -25,7 +25,9 @@ target holds what the row claims.
 ## Finding 1 — `base`: the leg has not run since 2026-11-06 02:05Z, and the error names a dead API key
 
 Since 2026-11-05 14:25Z the `base` leg has produced 243 rows: 12 confirmed,
-231 failed. The newest 140 are consecutive failures. 212 carry the same message:
+231 failed. The newest 140 are consecutive failures. Two messages account for
+all of them — `402` (212 rows, an exhausted Infura quota) and `429` (9 rows,
+rate limiting on the same key). The 402 form:
 
 ```
 TransactionExecutionError: HTTP request failed.
@@ -37,12 +39,15 @@ Request body: {"method":"eth_getTransactionCount", ...}
 - first 402 row: id 26980, 2026-11-05 14:25Z
 - last confirmed `base` row: id 27400, creation 2026-11-06 01:55Z, block 53698912
 - every `base` row after it is `failed`: 140 in a row as of 17:28Z
-- the 19 non-402 failures in the same window carry nonce and internal errors, i.e.
-  the leg was already unhealthy before the credential expired
+- the remaining failures in the window carry nonce and internal errors, i.e. the
+  leg was already unhealthy before the credential ran out
 
 `402 Payment Required` from an Infura endpoint is an exhausted quota, not a
-transient. The failure is therefore not self-healing, and the registry keeps
-writing one failed row every ~30 minutes into the table a stranger reads.
+transient. And the failure is **not** self-healing by retry: the same request
+alternates between 402 and 429 from one pass to the next (observed within the
+same 20-minute window), which is what a free-tier key does under retry, not what
+network luck does. The registry keeps writing one failed row every ~30 minutes
+into the table a stranger reads.
 
 **Independent confirmation that nothing was anchored:** the anchoring wallet
 `0xd70a303De07DC472fcFf71CaB89240583028c5Be` has sent **0 transactions** since
