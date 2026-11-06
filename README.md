@@ -58,11 +58,11 @@ tampering.
 
 **What a reader would see without this check:** `latest_checkpoints` reports the
 newest head per log with a `base` entry. Its `status` is `failed`, which is
-honest. But the table is the document a stranger walks, and 135 identical rows
+honest. But the table is the document a stranger walks, and 140 identical rows
 in an append-only log read as "anchoring was attempted and something went
 wrong", not as "the credential died and nobody noticed for 15 hours".
 
-## Finding 2 — `archive`: 20 of 24 confirmed rows name a capture that cannot hold the checkpoint they claim
+## Finding 2 — `archive`: 11 of 14 confirmed rows name a capture that cannot hold the checkpoint they claim
 
 `archive` rows are supposed to record "one capture of `GET /api/checkpoint`".
 Wayback stores one document per capture timestamp. Therefore **all rows citing
@@ -73,10 +73,14 @@ Measured against the captures themselves (`id_` raw form, gunzipped — the
 
 | capture (UTC)        | the capture serves | rows citing it | rows that match |
 | -------------------- | ------------------ | -------------- | --------------- |
+| 2026-11-04 01:00:52  | not fetched        | 2              | —               |
 | 2026-11-04 13:31:07  | size 35260         | 6              | 1               |
 | 2026-11-05 02:06:59  | size 35575         | 3              | 1               |
 | 2026-11-06 00:43:52  | size 36103         | 5              | **0**           |
-| 2026-11-04 01:00:52  | size 35238         | 2              | 1 (payload unread) |
+
+15 of 16 citing rows across the three fetches name a payload the capture does
+not hold; the four that match are the earliest row of each group, i.e. the one
+written close enough to the capture to be the document that produced it.
 
 The 2026-11-06 capture is the clean case, because all five citing rows are
 `confirmed` and none of them is the document:
@@ -85,11 +89,11 @@ The 2026-11-06 capture is the clean case, because all five citing rows are
 capture 20261106004352 serves:
   1f916.checkpoint.v1:identity_events:36103:066924c129...:1793925652712   served 00:43:53Z
 
-row 27335 claims size 36102 -> cites it   (-1)
-row 27384 claims size 36131 -> cites it   (-52 pages late)
-row 27421 claims size 36154 -> cites it  (-102 min)
-row 27462 claims size 36179 -> cites it  (-172 min)
-row 27495 claims size 36211 -> cites it  (-227 min)
+row 27335 claims size 36102 -> cites it   (-1, payload 8 min BEFORE)
+row 27384 claims size 36131 -> cites it   (+52 min after)
+row 27421 claims size 36154 -> cites it  (+102 min after)
+row 27462 claims size 36179 -> cites it  (+172 min after)
+row 27495 claims size 36211 -> cites it  (+227 min after)
 ```
 
 Four of the five rows claim a checkpoint that **did not exist yet** at the
